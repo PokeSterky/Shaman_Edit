@@ -1,3 +1,4 @@
+_G.librarystring = loadstring([==[
 --https://v3rmillion.net/member.php?action=profile&uid=1431869
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
@@ -1245,17 +1246,17 @@ innerSliderCorner.Name = "InnerSliderCorner"
 innerSliderCorner.CornerRadius = UDim.new(0, 100)
 innerSliderCorner.Parent = innerSlider
 
-local sliderValueText = Instance.new("TextLabel")
+local sliderValueText = Instance.new("TextBox")
 sliderValueText.Name = "SliderValueText"
 sliderValueText.Font = Enum.Font.GothamBold
 sliderValueText.Text = tostring(Info.Default)..Info.Postfix
 sliderValueText.TextColor3 = Color3.fromRGB(217, 217, 217)
 sliderValueText.TextSize = 11
-sliderValueText.TextXAlignment = Enum.TextXAlignment.Right
+sliderValueText.TextXAlignment = Enum.TextXAlignment.Center
 sliderValueText.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 sliderValueText.BackgroundTransparency = 1
-sliderValueText.Position = UDim2.new(0.0488, 0, 0, 0)
-sliderValueText.Size = UDim2.new(0, 149, 0, 27)
+sliderValueText.Position = UDim2.new(0.85, 0, 0, 0)
+sliderValueText.Size = UDim2.new(0, 20, 0, 27)
 sliderValueText.Parent = slider
 
 local sliderButton = Instance.new("TextButton")
@@ -1283,6 +1284,27 @@ local MaxSize = 1
 local SizeFromScale = (MinSize +  (MaxSize - MinSize)) * DefaultScale
 SizeFromScale = SizeFromScale - (SizeFromScale % 2)
 
+sliderValueText.FocusLost:Connect(function()
+    sliderTextVal = sliderValueText.Text
+    if tonumber(sliderTextVal) then
+        if tonumber(sliderTextVal) > Info.Maximum then
+            sliderValueText.Text = Info.Maximum
+        elseif tonumber(sliderTextVal) < Info.Minimum then
+            sliderValueText.Text = Info.Minimum
+        end
+    elseif not tonumber(sliderTextVal) then
+        sliderValueText.Text = Info.Default
+    end
+    scale = math.clamp((tonumber((sliderValueText.Text) or Info.Minimum) - Info.Minimum) / (Info.Maximum - Info.Minimum),0,1)
+	TweenService:Create(innerSlider, TweenInfo.new(0.1), {Size = UDim2.new(scale,0,0,4)}):Play()
+	if Info.Flag ~= nil then
+	    library.Flags[Info.Flag] = Value
+	end
+	task.spawn(function()
+	    pcall(Info.Callback, Value)
+	end)
+end)
+				
 sliderButton.MouseButton1Down:Connect(function() -- Skidded from material ui hehe, sorry
 	local MouseMove, MouseKill
 	MouseMove = Mouse.Move:Connect(function()
@@ -1306,6 +1328,8 @@ sliderButton.MouseButton1Down:Connect(function() -- Skidded from material ui heh
 		end
 	end)
 end)
+
+return {Set = function(a) sliderValueText:CaptureFocus() sliderValueText.Text = a sliderValueText:ReleaseFocus() end}
 end
 
 function sectiontable:Dropdown(Info)
@@ -1848,3 +1872,5 @@ return window
 end
 
 return library
+
+]==])()
